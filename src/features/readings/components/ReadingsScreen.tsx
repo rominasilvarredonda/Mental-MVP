@@ -1,0 +1,8 @@
+import { Icon } from "@/components/branding/Icon";
+import { Button } from "@/components/ui/Button";
+import type { Reading } from "@/types/reading";
+
+export function ReadingsScreen({ reading, isDailyComplete, pending, onComplete, onPast }: { reading: Reading; isDailyComplete: boolean; pending: boolean; onComplete: () => void; onPast: () => void }) {
+  const isComplete = isDailyComplete;
+  return <><div className="view-head"><div><h1>Lectura del día</h1><p>Una pausa breve para acompañar lo que estás viviendo hoy.</p></div></div><section className="daily-reading-card"><div className="daily-reading-top"><span><Icon name="book-open" /></span><div><small>LECTURA DESTACADA</small><p>{reading.category} · {reading.estimatedTime} de lectura</p></div></div><h2>{reading.title}</h2><div className="daily-reading-body"><p>{reading.content}</p><p>Cuando el ritmo se acelera, volver a lo concreto ayuda a recuperar perspectiva. Probá hacer una pausa y nombrar una sola cosa que necesita tu atención ahora.</p><p>Después preguntate qué puede esperar. Elegir un paso posible, en lugar de resolverlo todo, es una forma amable de bajar el ruido y acompañarte mejor.</p></div><div className="daily-reading-actions"><Button disabled={pending || isComplete} onClick={onComplete}>{isComplete ? "Lectura completada" : pending ? "Guardando..." : "Marcar como leída"}</Button>{isComplete && <span className="reading-feedback"><Icon name="badge-check" /> Guardamos tu lectura de hoy.</span>}</div></section><section className="past-reading-section"><Button variant="outline" onClick={onPast}>Ver lecturas pasadas</Button></section></>;
+}

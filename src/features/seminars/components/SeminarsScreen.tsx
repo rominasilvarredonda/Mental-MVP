@@ -1,0 +1,11 @@
+import { Icon } from "@/components/branding/Icon";
+import { Button } from "@/components/ui/Button";
+import { DashboardCard } from "@/components/layout/DashboardCard";
+import type { Seminar } from "@/types/seminar";
+
+export function SeminarsScreen({ seminars, reservedId, pending, onReserve }: { seminars: Seminar[]; reservedId: string | null; pending: boolean; onReserve: (id: string) => void }) {
+  const seminar = seminars[0];
+  if (!seminar) return null;
+  const reserved = seminar.id === reservedId;
+  return <><div className="view-head"><div><h1>Próximo seminario</h1><p>Un encuentro en vivo para sumar herramientas a tu semana.</p></div></div><section className="recommended-seminar"><div className="seminar-feature-head"><span><Icon name="presentation" /></span><div><small>RECOMENDADO PARA VOS</small><h2>{seminar.title}</h2><p>{seminar.schedule} · Modalidad online</p></div><span className="seminar-capacity">{seminar.capacity} cupos disponibles</span></div><div className="seminar-detail-grid"><div><small>LO DICTA</small><h3>Lic. Lucía Pereira</h3><p>Psicóloga clínica · Especialista en ansiedad y regulación emocional.</p></div><div><small>EN ESTE ENCUENTRO</small><p>Vas a explorar señales tempranas de ansiedad, recursos para volver al presente y una guía práctica para atravesar momentos de sobrecarga.</p></div><div><small>POR QUÉ PUEDE AYUDARTE</small><p>Entender lo que te pasa te permite elegir respuestas más amables y sostenibles para tu día a día.</p></div><div><small>TE LLEVÁS</small><p>Una práctica breve de regulación, ideas para tu rutina y un marco claro para seguir trabajando.</p></div></div><div className="seminar-feature-actions"><div>{reserved ? <span className="seminar-reserved"><Icon name="badge-check" /> Tu lugar está reservado</span> : <small>Durante la prueba gratuita podés asistir sin certificado.</small>}</div><Button disabled={reserved || pending} onClick={() => onReserve(seminar.id)}>{reserved ? "Lugar reservado" : pending ? "Reservando..." : "Reservar lugar"}</Button></div></section><DashboardCard className="seminar-material"><div><span><Icon name="book-open" /></span><div><small>MATERIAL DEL SEMINARIO</small><h3>Guía de acompañamiento</h3><p>El material se habilita automáticamente 2 horas antes del encuentro.</p></div></div><Button variant="outline" disabled>Disponible 2 horas antes</Button></DashboardCard></>;
+}
