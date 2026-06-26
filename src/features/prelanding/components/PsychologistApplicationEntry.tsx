@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ScreenLayout } from "@/components/layout/ScreenLayout";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { isAtLeastAge, isValidBirthDate, isValidEmail, isValidPhone, sanitizePhone } from "@/lib/validation";
 import { psychologistApplicationService } from "@/services/psychologistApplicationService";
 import type { PsychologistApplicationAnswers } from "@/types/prelaunch";
 
@@ -34,12 +35,14 @@ const initialAnswers: PsychologistApplicationAnswers = {
   motivation: "",
 };
 const initialForm = { firstName: "", lastName: "", birthDate: "", email: "", phone: "", linkedin: "" };
+const initialFieldErrors = { birthDate: "", email: "", phone: "" };
 
 export function PsychologistApplicationEntry() {
   const router = useRouter();
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<PsychologistApplicationAnswers>(initialAnswers);
   const [form, setForm] = useState(initialForm);
+  const [fieldErrors, setFieldErrors] = useState(initialFieldErrors);
   const [stage, setStage] = useState<"survey" | "form" | "done">("survey");
   const [error, setError] = useState("");
   const [isPending, setIsPending] = useState(false);
@@ -95,15 +98,29 @@ export function PsychologistApplicationEntry() {
   }
 
   function updateForm(field: keyof typeof initialForm, value: string) {
-    setForm((current) => ({ ...current, [field]: value }));
+    const nextValue = field === "phone" ? sanitizePhone(value) : value;
+    setForm((current) => ({ ...current, [field]: nextValue }));
+    if (field === "birthDate" || field === "email" || field === "phone") {
+      setFieldErrors((current) => ({ ...current, [field]: field === "phone" && nextValue !== value ? "El celular solo puede contener números y símbolos válidos." : "" }));
+    }
     setError("");
   }
 
   async function submitApplication() {
+    const nextFieldErrors = { ...initialFieldErrors };
     if (!form.firstName.trim() || !form.lastName.trim() || !form.birthDate || !form.email.trim() || !form.phone.trim()) {
       setError("Completá los datos requeridos para enviar tu postulación.");
       return;
     }
+    if (!isValidBirthDate(form.birthDate)) nextFieldErrors.birthDate = "Ingresá una fecha de nacimiento válida.";
+    else if (!isAtLeastAge(form.birthDate, 18)) nextFieldErrors.birthDate = "Para postularte como profesional debés ser mayor de 18 años.";
+    if (!isValidEmail(form.email)) nextFieldErrors.email = "Ingresá un email válido.";
+    if (!isValidPhone(form.phone)) nextFieldErrors.phone = "El celular solo puede contener números y símbolos válidos.";
+    if (nextFieldErrors.birthDate || nextFieldErrors.email || nextFieldErrors.phone) {
+      setFieldErrors(nextFieldErrors);
+      return;
+    }
+    setFieldErrors(nextFieldErrors);
     setIsPending(true);
     setError("");
     await psychologistApplicationService.submit({
@@ -148,12 +165,12 @@ export function PsychologistApplicationEntry() {
       </> : <>
         <p className="overline">DATOS DE CONTACTO</p>
         <h1>Completá tus datos para enviar la postulación</h1>
-        <form className="prelaunch-form" onSubmit={(event) => { event.preventDefault(); void submitApplication(); }}>
+        <form className="prelaunch-form" noValidate onSubmit={(event) => { event.preventDefault(); void submitApplication(); }}>
           <label>Nombre<Input required value={form.firstName} onChange={(event) => updateForm("firstName", event.target.value)} placeholder="Tu nombre" /></label>
           <label>Apellido<Input required value={form.lastName} onChange={(event) => updateForm("lastName", event.target.value)} placeholder="Tu apellido" /></label>
-          <label>Fecha de nacimiento<Input required type="date" value={form.birthDate} onChange={(event) => updateForm("birthDate", event.target.value)} /></label>
-          <label>E-mail<Input required type="email" value={form.email} onChange={(event) => updateForm("email", event.target.value)} placeholder="nombre@email.com" /></label>
-          <label>Celular<Input required value={form.phone} onChange={(event) => updateForm("phone", event.target.value)} placeholder="Tu celular" /></label>
+          <label>Fecha de nacimiento<Input required type="date" value={form.birthDate} onChange={(event) => updateForm("birthDate", event.target.value)} />{fieldErrors.birthDate && <small className="prelaunch-field-error">{fieldErrors.birthDate}</small>}</label>
+          <label>E-mail<Input required type="email" value={form.email} onChange={(event) => updateForm("email", event.target.value)} placeholder="nombre@email.com" />{fieldErrors.email && <small className="prelaunch-field-error">{fieldErrors.email}</small>}</label>
+          <label>Celular<Input required value={form.phone} onChange={(event) => updateForm("phone", event.target.value)} placeholder="Tu celular" />{fieldErrors.phone && <small className="prelaunch-field-error">{fieldErrors.phone}</small>}</label>
           <label>LinkedIn <small>Opcional</small><Input value={form.linkedin} onChange={(event) => updateForm("linkedin", event.target.value)} placeholder="https://linkedin.com/in/..." /></label>
           <p className="flow-error span-full" role="alert">{error}</p>
           <div className="prelaunch-form-actions span-full"><button type="button" onClick={previous}>← Volver</button><Button disabled={isPending} type="submit">{isPending ? "Enviando..." : "Enviar postulación"}</Button></div>

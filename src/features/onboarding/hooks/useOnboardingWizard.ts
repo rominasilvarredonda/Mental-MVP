@@ -1,21 +1,27 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { isAtLeastNumericAge, isValidAgeNumber } from "@/lib/validation";
 import { assessmentService } from "@/services/assessmentService";
 import { wizardQuestions, type WizardAnswer, type WizardAnswers, type WizardQuestion } from "@/features/onboarding/wizardQuestions";
 
 const wellbeingOnly = "Herramientas de bienestar (lecturas, psicoeducación, seminarios, AI, etc)";
 const valuesOf = (answer: WizardAnswer | undefined) => Array.isArray(answer) ? answer : answer ? [answer] : [];
 
-function isValid(question: WizardQuestion, answers: WizardAnswers) {
+function getValidationError(question: WizardQuestion, answers: WizardAnswers) {
   const answer = answers[question.id];
-  if (!answer || (Array.isArray(answer) && !answer.length) || (typeof answer === "string" && !answer.trim())) return false;
+  if (!answer || (Array.isArray(answer) && !answer.length) || (typeof answer === "string" && !answer.trim())) return "Respondé esta pregunta para continuar.";
+  if (question.id === "age") {
+    if (!isValidAgeNumber(String(answer))) return "Ingresá una edad válida.";
+    if (!isAtLeastNumericAge(String(answer), 12)) return "Por el momento Mental está disponible para personas mayores de 12 años.";
+  }
   if (question.nested && answer === question.nested.showWhen) {
     const nestedAnswer = answers[question.nested.id];
-    if (!nestedAnswer || (typeof nestedAnswer === "string" && !nestedAnswer.trim())) return false;
-    if (valuesOf(nestedAnswer).some((value) => question.nested?.textWhen?.includes(value)) && !String(answers[`${question.nested.id}-text`] ?? "").trim()) return false;
+    if (!nestedAnswer || (typeof nestedAnswer === "string" && !nestedAnswer.trim())) return "Respondé esta pregunta para continuar.";
+    if (valuesOf(nestedAnswer).some((value) => question.nested?.textWhen?.includes(value)) && !String(answers[`${question.nested.id}-text`] ?? "").trim()) return "Respondé esta pregunta para continuar.";
   }
-  return !valuesOf(answer).some((value) => question.textWhen?.includes(value)) || Boolean(String(answers[`${question.id}-text`] ?? "").trim());
+  if (valuesOf(answer).some((value) => question.textWhen?.includes(value)) && !String(answers[`${question.id}-text`] ?? "").trim()) return "Respondé esta pregunta para continuar.";
+  return "";
 }
 
 export function useOnboardingWizard() {
@@ -43,8 +49,9 @@ export function useOnboardingWizard() {
   }
 
   function next() {
-    if (!question || !isValid(question, answers)) {
-      setError("Respondé esta pregunta para continuar.");
+    const validationError = question ? getValidationError(question, answers) : "Respondé esta pregunta para continuar.";
+    if (validationError) {
+      setError(validationError);
       return;
     }
     if (step === visibleQuestions.length - 1) {
