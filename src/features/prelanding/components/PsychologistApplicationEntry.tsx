@@ -124,7 +124,7 @@ export function PsychologistApplicationEntry() {
       <section className="prelaunch-card prelaunch-confirmation">
         <div className="completeMark">✓</div>
         <p className="overline">POSTULACIÓN RECIBIDA</p>
-        <h1>Postulación recibida</h1>
+        <h1>Recibimos tu postulación</h1>
         <p>Gracias por tu interés en formar parte de Mental. Vamos a revisar tu perfil y contactarte si avanzamos a la siguiente etapa.</p>
         <Button type="button" onClick={() => router.push("/")}>Volver a la web</Button>
       </section>
