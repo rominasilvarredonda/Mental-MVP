@@ -15,5 +15,5 @@ export function LandingEntry() {
     return () => window.removeEventListener("scroll", updateHeader);
   }, []);
 
-  return <LandingScreen isScrolled={isScrolled} onStart={() => router.push("/onboarding")} onLogin={() => router.push("/login")} onScrollTo={(id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })} />;
+  return <LandingScreen isScrolled={isScrolled} onStart={() => router.push("/onboarding")} onScrollTo={(id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })} />;
 }

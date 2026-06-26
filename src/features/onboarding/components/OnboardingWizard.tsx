@@ -39,7 +39,7 @@ function Options({ question, answers, onSaveAnswer, onSelectAnswer }: Pick<Onboa
 }
 
 export function OnboardingWizard({ step, total, question, answers, error, isComplete, onClose, onSaveAnswer, onSelectAnswer, onPrevious, onNext, onFinish }: OnboardingWizardProps) {
-  if (isComplete) return <ScreenLayout progress={100} onClose={onClose}><section className={styles.complete}><div className={styles.completeMark}>✓</div><p className={styles.stepLabel}>TU EXPERIENCIA MENTAL</p><h1>Gracias por contarnos un poco sobre vos. Con esta información vamos a poder personalizar mejor tu experiencia en Mental.</h1><Button type="button" onClick={onFinish}>Continuar a Mental</Button></section></ScreenLayout>;
+  if (isComplete) return <ScreenLayout progress={100} onClose={onClose}><section className={styles.complete}><div className={styles.completeMark}>✓</div><p className={styles.stepLabel}>TU EXPERIENCIA MENTAL</p><h1>Gracias por contarnos un poco sobre vos. Con esta información vamos a poder personalizar mejor tu experiencia cuando lancemos Mental.</h1><Button type="button" onClick={onFinish}>Continuar a la lista de espera</Button></section></ScreenLayout>;
   if (!question) return null;
 
   const selected = valuesOf(answers[question.id]);

@@ -20,6 +20,6 @@ export function OnboardingEntry() {
     onSelectAnswer={onboarding.selectAnswer}
     onPrevious={() => onboarding.previous()}
     onNext={onboarding.next}
-    onFinish={() => router.push("/onboarding/preparando")}
+    onFinish={() => router.push("/lista-espera")}
   />;
 }
