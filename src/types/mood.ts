@@ -1,5 +1,5 @@
-export const moodOptions = ["Muy bien", "En calma", "Neutral", "Baja energía", "Abrumada/o"] as const;
-export const moodInfluenceOptions = ["Trabajo/estudio", "Vínculos", "Descanso", "Salud", "Incertidumbre", "Otro"] as const;
+export const moodOptions = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"] as const;
+export const moodInfluenceOptions = ["Angustia", "Estrés", "Ansiedad", "Euforia", "Alegría", "Tristeza", "Furia", "Enojo", "Calma", "Inseguridad", "Confusión", "Incomodidad"] as const;
 export const moodNeedOptions = ["Ordenar mis ideas", "Bajar ansiedad", "Motivarme", "Descansar", "Hablar con alguien", "Seguir como estoy"] as const;
 
 export type Mood = (typeof moodOptions)[number];

@@ -28,4 +28,14 @@ export const seminarService = {
     if (error) throw error;
     return reservation;
   },
+  async cancel(userId: string, seminarId: string): Promise<boolean> {
+    if (!isSupabaseConfigured) {
+      const existing = await this.listReservations(userId);
+      localStorage.setItem(`mental-v2.seminars.${userId}`, JSON.stringify(existing.filter((item) => item.seminarId !== seminarId)));
+      return true;
+    }
+    const { error } = await supabase!.from("seminar_reservations").delete().eq("user_id", userId).eq("seminar_id", seminarId);
+    if (error) throw error;
+    return true;
+  },
 };

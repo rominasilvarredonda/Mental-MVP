@@ -6,6 +6,8 @@ import { moodService } from "@/services/moodService";
 import { useAsyncAction } from "@/hooks/useAsyncAction";
 import type { Mood, MoodEntry, MoodInfluence, MoodNeed } from "@/types/mood";
 
+const defaultCheckinNeed: MoodNeed = "Seguir como estoy";
+
 export function useMood() {
   const { user } = useAuth();
   const { isPending, error, run } = useAsyncAction();
@@ -42,13 +44,14 @@ export function useMood() {
     return () => { active = false; };
   }, [user?.id]);
   async function save() {
-    if (!user || isSaved || !selectedMood || !selectedInfluence || !selectedNeed) return;
-    const entry = await run(() => moodService.create(user.id, { mood: selectedMood, influence: selectedInfluence, need: selectedNeed, note }));
+    if (!user || isSaved || !selectedMood || !selectedInfluence) return;
+    const entry = await run(() => moodService.create(user.id, { mood: selectedMood, influence: selectedInfluence, need: selectedNeed ?? defaultCheckinNeed, note }));
     if (entry) {
       setTodayEntry(entry);
       setIsSaved(true);
+      setSelectedNeed(entry.need);
       setTotal((current) => current + 1);
     }
   }
-  return { selectedMood, setSelectedMood, selectedInfluence, setSelectedInfluence, selectedNeed, setSelectedNeed, note, setNote, todayEntry, isSaved, isPending, error, total, canSave: Boolean(selectedMood && selectedInfluence && selectedNeed), save };
+  return { selectedMood, setSelectedMood, selectedInfluence, setSelectedInfluence, selectedNeed, setSelectedNeed, note, setNote, todayEntry, isSaved, isPending, error, total, canSave: Boolean(selectedMood && selectedInfluence), save };
 }

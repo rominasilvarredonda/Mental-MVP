@@ -1,12 +1,25 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { OnboardingSurvey } from "@/features/onboarding/components/OnboardingSurvey";
-import { useOnboarding } from "@/features/onboarding/hooks/useOnboarding";
-import { questions } from "@/features/onboarding/questions";
+import { OnboardingWizard } from "@/features/onboarding/components/OnboardingWizard";
+import { useOnboardingWizard } from "@/features/onboarding/hooks/useOnboardingWizard";
 
 export function OnboardingEntry() {
   const router = useRouter();
-  const onboarding = useOnboarding();
-  return <OnboardingSurvey step={onboarding.step} total={questions.length} question={onboarding.question} answer={onboarding.answers[onboarding.step]} selected={onboarding.selected.filter((answer): answer is string => typeof answer === "string")} otherAnswer={onboarding.otherAnswers[onboarding.step] ?? ""} error={onboarding.error} onClose={() => router.push("/")} onAnswer={onboarding.saveAnswer} onSelect={onboarding.selectAnswer} onOtherAnswer={onboarding.changeOther} onPrevious={() => onboarding.previous(() => router.push("/"))} onNext={() => onboarding.next(() => router.push("/onboarding/preparando"))} />;
+  const onboarding = useOnboardingWizard();
+
+  return <OnboardingWizard
+    step={onboarding.step}
+    total={onboarding.total}
+    question={onboarding.question}
+    answers={onboarding.answers}
+    error={onboarding.error}
+    isComplete={onboarding.isComplete}
+    onClose={() => router.push("/")}
+    onSaveAnswer={onboarding.saveAnswer}
+    onSelectAnswer={onboarding.selectAnswer}
+    onPrevious={() => onboarding.previous()}
+    onNext={onboarding.next}
+    onFinish={() => router.push("/onboarding/preparando")}
+  />;
 }
