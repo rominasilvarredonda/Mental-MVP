@@ -1,13 +1,28 @@
-import type { AssessmentAnswer } from "@/types/assessment";
+import type { AssessmentDraft } from "@/types/assessment";
 
-export type WaitlistRegistration = {
-  onboardingAnswers: AssessmentAnswer[];
+export type PrelaunchSource = "pre-landing";
+export type PrelaunchMetadata = Record<string, unknown>;
+
+export type PrelaunchWaitlistSubmission = {
+  onboardingAnswers: AssessmentDraft;
   firstName: string;
   lastName: string;
   email: string;
   phone?: string;
-  registeredAt: string;
-  source: "pre-landing";
+  interestedPlan?: string | null;
+  metadata?: PrelaunchMetadata;
+};
+
+export type WaitlistRegistration = {
+  onboardingAnswers: AssessmentDraft;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  interestedPlan?: string | null;
+  source: PrelaunchSource;
+  metadata?: PrelaunchMetadata;
+  createdAt: string;
 };
 
 export type PsychologistApplicationAnswers = {
@@ -30,5 +45,11 @@ export type PsychologistApplication = {
   email: string;
   phone: string;
   linkedin?: string;
-  appliedAt: string;
+  source: PrelaunchSource;
+  metadata?: PrelaunchMetadata;
+  createdAt: string;
+};
+
+export type ProfessionalApplicationSubmission = Omit<PsychologistApplication, "createdAt" | "source"> & {
+  metadata?: PrelaunchMetadata;
 };

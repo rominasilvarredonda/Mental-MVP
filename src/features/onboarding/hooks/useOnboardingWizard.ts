@@ -55,7 +55,7 @@ export function useOnboardingWizard() {
       return;
     }
     if (step === visibleQuestions.length - 1) {
-      assessmentService.saveDraft(Object.values(answers).filter((answer): answer is WizardAnswer => answer !== undefined));
+      assessmentService.saveDraft(answers);
       setIsComplete(true);
       return;
     }

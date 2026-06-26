@@ -6,7 +6,7 @@ import { ScreenLayout } from "@/components/layout/ScreenLayout";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { isAtLeastAge, isValidBirthDate, isValidEmail, isValidPhone, sanitizePhone } from "@/lib/validation";
-import { psychologistApplicationService } from "@/services/psychologistApplicationService";
+import { professionalApplicationService } from "@/services/professionalApplicationService";
 import type { PsychologistApplicationAnswers } from "@/types/prelaunch";
 
 type StepId = keyof PsychologistApplicationAnswers;
@@ -36,6 +36,19 @@ const initialAnswers: PsychologistApplicationAnswers = {
 };
 const initialForm = { firstName: "", lastName: "", birthDate: "", email: "", phone: "", linkedin: "" };
 const initialFieldErrors = { birthDate: "", email: "", phone: "" };
+
+function getPersistenceErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "No pudimos guardar tu postulación. Intentá nuevamente en unos minutos.";
+}
+
+function getClientMetadata() {
+  if (typeof window === "undefined") return undefined;
+  return {
+    path: window.location.pathname,
+    search: window.location.search || null,
+    userAgent: navigator.userAgent,
+  };
+}
 
 export function PsychologistApplicationEntry() {
   const router = useRouter();
@@ -123,17 +136,23 @@ export function PsychologistApplicationEntry() {
     setFieldErrors(nextFieldErrors);
     setIsPending(true);
     setError("");
-    await psychologistApplicationService.submit({
-      answers,
-      firstName: form.firstName.trim(),
-      lastName: form.lastName.trim(),
-      birthDate: form.birthDate,
-      email: form.email.trim(),
-      phone: form.phone.trim(),
-      linkedin: form.linkedin.trim() || undefined,
-    });
-    setIsPending(false);
-    setStage("done");
+    try {
+      await professionalApplicationService.submit({
+        answers,
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        birthDate: form.birthDate,
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        linkedin: form.linkedin.trim() || undefined,
+        metadata: getClientMetadata(),
+      });
+      setStage("done");
+    } catch (submitError) {
+      setError(getPersistenceErrorMessage(submitError));
+    } finally {
+      setIsPending(false);
+    }
   }
 
   if (stage === "done") {

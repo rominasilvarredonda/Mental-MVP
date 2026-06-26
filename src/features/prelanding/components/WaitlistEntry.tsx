@@ -7,10 +7,30 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { isValidEmail, isValidPhone, sanitizePhone } from "@/lib/validation";
 import { assessmentService } from "@/services/assessmentService";
-import { waitlistService } from "@/services/waitlistService";
+import { prelaunchWaitlistService } from "@/services/prelaunchWaitlistService";
 
 const initialForm = { firstName: "", lastName: "", email: "", phone: "" };
 const initialFieldErrors = { email: "", phone: "" };
+const interestedPlanKey = "mental-v2.prelaunch.interested-plan";
+
+function getPersistenceErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "No pudimos guardar tu registro. Intentá nuevamente en unos minutos.";
+}
+
+function getInterestedPlan() {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  return params.get("plan") || sessionStorage.getItem(interestedPlanKey);
+}
+
+function getClientMetadata() {
+  if (typeof window === "undefined") return undefined;
+  return {
+    path: window.location.pathname,
+    search: window.location.search || null,
+    userAgent: navigator.userAgent,
+  };
+}
 
 export function WaitlistEntry() {
   const router = useRouter();
@@ -44,16 +64,24 @@ export function WaitlistEntry() {
     setFieldErrors(nextFieldErrors);
     setIsPending(true);
     setError("");
-    await waitlistService.submit({
-      onboardingAnswers: assessmentService.getDraft(),
-      firstName: form.firstName.trim(),
-      lastName: form.lastName.trim(),
-      email: form.email.trim(),
-      phone: form.phone.trim() || undefined,
-    });
-    assessmentService.clearDraft();
-    setIsSubmitted(true);
-    setIsPending(false);
+    try {
+      await prelaunchWaitlistService.submit({
+        onboardingAnswers: assessmentService.getDraft(),
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim() || undefined,
+        interestedPlan: getInterestedPlan(),
+        metadata: getClientMetadata(),
+      });
+      assessmentService.clearDraft();
+      sessionStorage.removeItem(interestedPlanKey);
+      setIsSubmitted(true);
+    } catch (submitError) {
+      setError(getPersistenceErrorMessage(submitError));
+    } finally {
+      setIsPending(false);
+    }
   }
 
   if (isSubmitted) {
