@@ -9,6 +9,39 @@ type LandingScreenProps = { isScrolled: boolean; onStart: (interestedPlan?: stri
 const pillars: [IconName, string, string][] = [["brain", "Psicólogos especializados", "Acompañamiento profesional adaptado a tus necesidades."], ["book-open", "Psicoeducación", "Clases grupales para desarrollar herramientas psicológicas aplicables a la vida real."], ["message-circle", "IA emocional", "Acompañamiento disponible cuando lo necesites."], ["trending-up", "Seguimiento de progreso", "Visualizá tu evolución emocional y construí hábitos sostenibles."]];
 const steps: [IconName, string, ReactNode][] = [["clipboard-list", "Completás tu evaluación inicial", <>Un breve <span className="font-semibold">cuestionario</span> para entender tus objetivos, necesidades y situación actual.</>], ["badge-check", "Elegís tu plan", <>Seleccioná la <span className="font-semibold">forma de acompañamiento</span> que mejor se adapta a tu momento y necesidades.</>], ["video", "Sesión de bienvenida sin costo", <>Una <span className="font-semibold">primera conversación</span> de aproximadamente 15 minutos para conocernos, definir objetivos y resolver dudas.</>], ["user-round-check", "Conocés a tu psicólogo", <>Te asignamos el profesional más <span className="font-semibold">adecuado</span> según tu perfil y objetivos.</>], ["heart-pulse", "Mental te acompaña", <>Sesiones, herramientas, <span className="font-semibold">seguimiento</span> e IA emocional para acompañarte todos los días.</>]];
 const resources: [IconName, string][] = [["book-open", "Sesiones privadas online"], ["message-circle", "IA de apoyo emocional"], ["heart-pulse", "Registro de ánimo"], ["trending-up", "Seguimiento de progreso"], ["graduation-cap", "Recursos y clases"], ["badge-check", "Planes flexibles"]];
+const contactEmail = "admin@mentalapp.info";
+const collaborationSubject = "Propuesta de colaboración para Mental";
+const collaborationBody = `Hola equipo de Mental,
+
+Me gustaría acercar una propuesta de colaboración para Mental.
+
+Creo que podríamos generar valor trabajando juntos y me gustaría contarles mi idea.
+
+Tipo de colaboración:
+(Empresa / Profesional / Universidad / Organización / Influencer / Medio de comunicación / Desarrollo tecnológico / Inversión / Otra)
+
+Nombre:
+
+Organización (si corresponde):
+
+Ciudad / País:
+
+Teléfono:
+
+Sitio web o LinkedIn (opcional):
+
+Descripción de la propuesta:
+
+
+
+
+
+
+
+Quedo a disposición para conversar cuando lo consideren conveniente.
+
+Muchas gracias.`;
+const collaborationHref = `mailto:${contactEmail}?subject=${encodeURIComponent(collaborationSubject)}&body=${encodeURIComponent(collaborationBody)}`;
 
 function Plan({ name, text, originalPrice, discountedPrice, features, featured, accessible, premium, onStart }: { name: string; text: string; originalPrice: string; discountedPrice: string; features: string[]; featured?: boolean; accessible?: boolean; premium?: boolean; onStart: (interestedPlan?: string) => void }) {
   return <article className={`plan${featured ? " featured" : ""}${premium ? " premium" : ""}`}>{accessible && <span className="tag">Más accesible</span>}{featured && <span className="tag">Más elegido</span>}<h3>{name}</h3><p>{text}</p><span className="prelaunch-discount-badge">30% OFF pre-lanzamiento</span><div className="prelaunch-price"><span className="original-price">{originalPrice} <small>UYU / mes</small></span><b>{discountedPrice} <small>UYU / mes</small></b></div><p className="prelaunch-price-note">Anotate ahora y accedé a este beneficio cuando lancemos.</p><hr /><ul>{features.map((item) => <li key={item}>{item}</li>)}</ul><Button variant="primary" onClick={() => onStart(name)}>{name === "Plan Básico" ? "Elegir Básico →" : name === "Plan Full" ? "Elegir Full →" : "Elegir Premium →"}</Button><div className="certificate">{name === "Plan Básico" ? "Los certificados reflejan formación continua. No reemplazan títulos universitarios ni certificaciones habilitantes." : name === "Plan Full" ? "Sumás sesiones privadas para profundizar tu proceso junto a un profesional." : "Incluye un acompañamiento profesional sostenido, según la frecuencia elegida."}</div></article>;
@@ -22,5 +55,5 @@ export function LandingScreen({ isScrolled, onStart, onScrollTo }: LandingScreen
     <section id="recursos" className="resources"><div><div className="kicker">TODO EN UN MISMO LUGAR</div><h2>El cuidado no tiene por qué esperar a la próxima sesión.</h2><p>Clases, ejercicios, IA emocional y herramientas simples para que tu bienestar tenga un lugar en todos los días.</p><Button onClick={() => onScrollTo("planes")}>Conocé Mental →</Button></div><div className="resource-grid">{resources.map(([icon, text]) => <div className="resource" key={text}><Icon name={icon} />{text}</div>)}</div></section>
     <section id="planes" className="plans"><div className="kicker">PLANES MENTAL</div><h2>Elegí el plan que mejor acompaña tu proceso</h2><p>Anotate al pre-lanzamiento y reservá un 30% OFF para cuando Mental esté disponible.</p><div className="plan-grid"><Plan name="Plan Básico" text="Herramientas psicológicas prácticas para tu bienestar." originalPrice="$557" discountedPrice="$390" accessible onStart={onStart} features={["Lecturas diarias de psicoeducación", "Seminarios en vivo por Zoom", "Certificados de asistencia", "Registro emocional diario", "IA de apoyo emocional", "Ejercicios guiados", "25% OFF en sesiones terapéuticas"]} /><Plan name="Plan Full" text="Psicoeducación y un seguimiento profesional más cercano." originalPrice="$3414" discountedPrice="$2390" featured onStart={onStart} features={["Todo lo del Plan Básico", "2 sesiones mensuales con tu psicólogo", "Recomendaciones y ejercicios adaptados a tu proceso terapéutico"]} /><Plan name="Plan Premium" text="Para comprometerte con tu proceso al máximo" originalPrice="$5700" discountedPrice="$3990" premium onStart={onStart} features={["Todo lo del Plan Básico", "4 sesiones mensuales con psicólogo", "Recomendaciones y ejercicios adaptados a tu proceso terapéutico"]} /></div></section>
     <FaqSection />
-    <section className="cta"><div><div className="eyebrow">PRE-LANZAMIENTO MENTAL</div><h2>Sumate a la lista de espera y reservá tu 30% OFF.</h2><Button onClick={() => onStart()}>Sumarme a la lista →</Button></div><Icon name="message-circle" /></section><footer className="footer"><div className="footer-brand"><Logo /><p>Acompañamiento emocional profesional, accesible y a tu ritmo.</p></div><div><h3>¿Querés saber más?</h3><a href="mailto:hola@mental.uy">Hablar con asesoramiento</a><a href="mailto:hola@mental.uy?subject=Consulta%20sobre%20Mental">Cómo funciona Mental</a><a href="/terminos-y-condiciones">Términos y condiciones</a></div><div><h3>Para profesionales</h3><a href="/postulacion-psicologos">Postularme como psicólogo/a</a><a href="/postulacion-psicologos">Sumarme a la red Mental</a></div><div><h3>Contacto</h3><a href="mailto:hola@mental.uy">hola@mental.uy</a><a href="#planes" onClick={(event) => { event.preventDefault(); onScrollTo("planes"); }}>Ver planes</a></div><div className="footer-bottom">© 2026 Mental · Un espacio para cuidarte con más compañía.</div></footer></>;
+    <section className="cta"><div><div className="eyebrow">PRE-LANZAMIENTO MENTAL</div><h2>Sumate a la lista de espera y reservá tu 30% OFF.</h2><Button onClick={() => onStart()}>Sumarme a la lista →</Button></div><Icon name="message-circle" /></section><footer className="footer"><div className="footer-brand"><Logo /><p>Acompañamiento emocional profesional, accesible y a tu ritmo.</p></div><div><h3>¿Querés saber más?</h3><a href="/terminos-y-condiciones">Términos y condiciones</a></div><div><h3>Para profesionales</h3><a href="/postulacion-psicologos">Postularme como psicólogo/a</a><a href={collaborationHref}>Proponer una colaboración</a></div><div><h3>Contacto</h3><a href={`mailto:${contactEmail}`}>{contactEmail}</a><a href="#planes" onClick={(event) => { event.preventDefault(); onScrollTo("planes"); }}>Ver planes</a></div><div className="footer-bottom">© 2026 Mental · Un espacio para cuidarte con más compañía.</div></footer></>;
 }

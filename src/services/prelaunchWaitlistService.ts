@@ -2,7 +2,6 @@ import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
 import type { PrelaunchWaitlistSubmission, WaitlistRegistration } from "@/types/prelaunch";
 import type { AssessmentDraft } from "@/types/assessment";
 
-const WAITLIST_KEY = "mental-v2.prelaunch.waitlist";
 const legacyAnswerIds = [
   "identity",
   "age",
@@ -24,21 +23,6 @@ const legacyAnswerIds = [
 
 type AnswerValue = string | string[] | undefined;
 type AnswerMap = Record<string, AnswerValue>;
-
-function isDevelopmentFallbackAllowed() {
-  return process.env.NODE_ENV !== "production";
-}
-
-function saveLocal(record: WaitlistRegistration) {
-  if (typeof window === "undefined") return;
-
-  try {
-    const existing = JSON.parse(localStorage.getItem(WAITLIST_KEY) ?? "[]") as WaitlistRegistration[];
-    localStorage.setItem(WAITLIST_KEY, JSON.stringify([...existing, record]));
-  } catch {
-    localStorage.setItem(WAITLIST_KEY, JSON.stringify([record]));
-  }
-}
 
 function createRecord(submission: PrelaunchWaitlistSubmission): WaitlistRegistration {
   return {
@@ -127,17 +111,14 @@ export const prelaunchWaitlistService = {
     const nextRecord = createRecord(submission);
 
     if (!isSupabaseConfigured) {
-      if (isDevelopmentFallbackAllowed()) {
-        saveLocal(nextRecord);
-        return nextRecord;
-      }
-
       throw new Error("Supabase no está configurado para guardar la lista de espera.");
     }
 
-    const { error } = await supabase!.from("prelaunch_waitlist").insert(getNormalizedColumns(nextRecord));
+    const payload = getNormalizedColumns(nextRecord);
+    const { error } = await supabase!.from("prelaunch_waitlist").insert(payload);
 
     if (error) {
+      console.error("[prelaunchWaitlistService] Supabase insert failed", { error, payload });
       throw new Error("No pudimos guardar tu registro en Supabase. Intentá nuevamente en unos minutos.");
     }
 

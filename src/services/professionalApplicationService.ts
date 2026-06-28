@@ -1,23 +1,6 @@
 import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
 import type { ProfessionalApplicationSubmission, PsychologistApplication } from "@/types/prelaunch";
 
-const APPLICATIONS_KEY = "mental-v2.prelaunch.professional-applications";
-
-function isDevelopmentFallbackAllowed() {
-  return process.env.NODE_ENV !== "production";
-}
-
-function saveLocal(record: PsychologistApplication) {
-  if (typeof window === "undefined") return;
-
-  try {
-    const existing = JSON.parse(localStorage.getItem(APPLICATIONS_KEY) ?? "[]") as PsychologistApplication[];
-    localStorage.setItem(APPLICATIONS_KEY, JSON.stringify([...existing, record]));
-  } catch {
-    localStorage.setItem(APPLICATIONS_KEY, JSON.stringify([record]));
-  }
-}
-
 function createRecord(submission: ProfessionalApplicationSubmission): PsychologistApplication {
   return {
     ...submission,
@@ -61,17 +44,14 @@ export const professionalApplicationService = {
     const nextRecord = createRecord(submission);
 
     if (!isSupabaseConfigured) {
-      if (isDevelopmentFallbackAllowed()) {
-        saveLocal(nextRecord);
-        return nextRecord;
-      }
-
       throw new Error("Supabase no está configurado para guardar postulaciones profesionales.");
     }
 
-    const { error } = await supabase!.from("professional_applications").insert(getNormalizedColumns(nextRecord));
+    const payload = getNormalizedColumns(nextRecord);
+    const { error } = await supabase!.from("professional_applications").insert(payload);
 
     if (error) {
+      console.error("[professionalApplicationService] Supabase insert failed", { error, payload });
       throw new Error("No pudimos guardar la postulación en Supabase. Intentá nuevamente en unos minutos.");
     }
 
