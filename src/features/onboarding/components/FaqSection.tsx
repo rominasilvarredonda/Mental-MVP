@@ -95,7 +95,7 @@ const faqs: Faq[] = [
   },
   {
     question: "¿Las sesiones tienen una duración fija?",
-    paragraphs: ["Sí.", "Cada sesión tiene una duración estándar de 50 minutos para asegurar un espacio terapéutico adecuado y de calidad."],
+    paragraphs: ["En general, las sesiones tienen una duración aproximada de 50 minutos. Sin embargo, la duración puede variar según el enfoque terapéutico y la modalidad de trabajo de cada profesional. Antes de comenzar, te informaremos cómo será la dinámica con el/la psicólogo/a que Mental te asigne según la evaluación inicial."],
   },
   {
     question: "¿La inteligencia artificial reemplaza al psicólogo?",
