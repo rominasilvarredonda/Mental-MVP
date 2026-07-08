@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ScreenLayout } from "@/components/layout/ScreenLayout";
 import { Button } from "@/components/ui/Button";
@@ -9,7 +9,8 @@ import { isValidEmail, isValidPhone, sanitizePhone } from "@/lib/validation";
 import { assessmentService } from "@/services/assessmentService";
 import { prelaunchWaitlistService } from "@/services/prelaunchWaitlistService";
 
-const initialForm = { firstName: "", lastName: "", email: "", phone: "" };
+const planInterestOptions = ["Plan Básico", "Plan Full", "Plan Premium", "Todavía no lo sé"];
+const initialForm = { firstName: "", lastName: "", email: "", phone: "", interestedPlan: "" };
 const initialFieldErrors = { email: "", phone: "" };
 const interestedPlanKey = "mental-v2.prelaunch.interested-plan";
 
@@ -40,6 +41,13 @@ export function WaitlistEntry() {
   const [error, setError] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  useEffect(() => {
+    const interestedPlan = getInterestedPlan();
+    if (interestedPlan && planInterestOptions.some((option) => option === interestedPlan)) {
+      setForm((current) => ({ ...current, interestedPlan }));
+    }
+  }, []);
+
   function update(field: keyof typeof initialForm, value: string) {
     const nextValue = field === "phone" ? sanitizePhone(value) : value;
     setForm((current) => ({ ...current, [field]: nextValue }));
@@ -51,8 +59,8 @@ export function WaitlistEntry() {
 
   async function submit() {
     const nextFieldErrors = { ...initialFieldErrors };
-    if (!form.firstName.trim() || !form.lastName.trim() || !form.email.trim()) {
-      setError("Completá nombre, apellido y e-mail para sumarte.");
+    if (!form.firstName.trim() || !form.lastName.trim() || !form.email.trim() || !form.interestedPlan) {
+      setError("Completá nombre, apellido, e-mail y plan de interés para sumarte.");
       return;
     }
     if (!isValidEmail(form.email)) nextFieldErrors.email = "Ingresá un email válido.";
@@ -71,7 +79,7 @@ export function WaitlistEntry() {
         lastName: form.lastName.trim(),
         email: form.email.trim(),
         phone: form.phone.trim() || undefined,
-        interestedPlan: getInterestedPlan(),
+        interestedPlan: form.interestedPlan,
         metadata: getClientMetadata(),
       });
       assessmentService.clearDraft();
@@ -106,6 +114,7 @@ export function WaitlistEntry() {
         <label>Apellido<Input required value={form.lastName} onChange={(event) => update("lastName", event.target.value)} placeholder="Tu apellido" /></label>
         <label>E-mail<Input required type="email" value={form.email} onChange={(event) => update("email", event.target.value)} placeholder="nombre@email.com" />{fieldErrors.email && <small className="prelaunch-field-error">{fieldErrors.email}</small>}</label>
         <label>Celular <small>Opcional</small><Input value={form.phone} onChange={(event) => update("phone", event.target.value)} placeholder="Tu celular" />{fieldErrors.phone && <small className="prelaunch-field-error">{fieldErrors.phone}</small>}</label>
+        <label className="span-full">¿Qué plan te interesa más?<select required value={form.interestedPlan} onChange={(event) => update("interestedPlan", event.target.value)}><option value="">Seleccioná una opción</option>{planInterestOptions.map((option) => <option key={option} value={option}>{option}</option>)}</select></label>
         <p className="flow-error span-full" role="alert">{error}</p>
         <Button className="span-full" disabled={isPending} type="submit">{isPending ? "Guardando..." : "Quiero sumarme a la lista de espera"}</Button>
       </form>
