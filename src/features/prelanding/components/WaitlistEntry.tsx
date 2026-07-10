@@ -10,6 +10,31 @@ import { assessmentService } from "@/services/assessmentService";
 import { prelaunchWaitlistService } from "@/services/prelaunchWaitlistService";
 
 const planInterestOptions = ["Plan Básico", "Plan Full", "Plan Premium", "Todavía no lo sé"];
+const planGuideCards = [
+  {
+    name: "Plan Básico",
+    description: "Herramientas psicológicas prácticas para tu bienestar.",
+    originalPrice: "$557",
+    discountedPrice: "$390",
+    features: ["Lecturas diarias de psicoeducación", "Seminarios en vivo por Zoom", "Certificados de asistencia", "Registro emocional diario", "IA de apoyo emocional", "Ejercicios guiados", "25% OFF en sesiones terapéuticas"],
+  },
+  {
+    name: "Plan Full",
+    description: "Psicoeducación y un seguimiento profesional más cercano.",
+    originalPrice: "$3414",
+    discountedPrice: "$2390",
+    featured: true,
+    features: ["Todo lo del Plan Básico", "2 sesiones mensuales con tu psicólogo", "Recomendaciones y ejercicios adaptados a tu proceso terapéutico"],
+  },
+  {
+    name: "Plan Premium",
+    description: "Para comprometerte con tu proceso al máximo.",
+    originalPrice: "$5700",
+    discountedPrice: "$3990",
+    premium: true,
+    features: ["Todo lo del Plan Básico", "4 sesiones mensuales con psicólogo", "Recomendaciones y ejercicios adaptados a tu proceso terapéutico"],
+  },
+];
 const initialForm = { firstName: "", lastName: "", email: "", phone: "", interestedPlan: "" };
 const initialFieldErrors = { email: "", phone: "" };
 const interestedPlanKey = "mental-v2.prelaunch.interested-plan";
@@ -33,6 +58,30 @@ function getClientMetadata() {
   };
 }
 
+function PlanGuideScreen({ onClose, onContinue }: { onClose: () => void; onContinue: () => void }) {
+  return <ScreenLayout progress={100} onClose={onClose}>
+    <section className="prelaunch-card prelaunch-plan-guide">
+      <p className="overline">PRE-LANZAMIENTO MENTAL</p>
+      <h1>Conocé los planes de Mental</h1>
+      <p>Antes de sumarte a la lista de espera, te mostramos las opciones para que puedas elegir después cuál te interesa más. No tenés que decidir ahora.</p>
+      <div className="prelaunch-plan-grid">
+        {planGuideCards.map((plan) => <article className={`prelaunch-plan-card${plan.featured ? " featured" : ""}${plan.premium ? " premium" : ""}`} key={plan.name}>
+          {plan.featured && <span className="prelaunch-plan-tag">Más elegido</span>}
+          <h2>{plan.name}</h2>
+          <p>{plan.description}</p>
+          <ul>{plan.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
+          <hr />
+          <span className="prelaunch-discount-badge">30% OFF PRE-LANZAMIENTO</span>
+          <div className="prelaunch-price"><span className="original-price">{plan.originalPrice} <small>UYU / mes</small></span><b>{plan.discountedPrice} <small>UYU / mes</small></b></div>
+          <p className="prelaunch-price-note">Este será el precio que accederás en tu suscripción a Mental por los primeros 3 meses del plan.</p>
+        </article>)}
+      </div>
+      <p className="prelaunch-plan-note">Podés cambiar de opinión más adelante. Esta información es solo para orientarte.</p>
+      <div className="prelaunch-plan-actions"><Button type="button" onClick={onContinue}>Continuar</Button></div>
+    </section>
+  </ScreenLayout>;
+}
+
 export function WaitlistEntry() {
   const router = useRouter();
   const [form, setForm] = useState(initialForm);
@@ -40,6 +89,7 @@ export function WaitlistEntry() {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showPlanGuide, setShowPlanGuide] = useState(true);
 
   useEffect(() => {
     const interestedPlan = getInterestedPlan();
@@ -102,6 +152,10 @@ export function WaitlistEntry() {
         <Button type="button" onClick={() => router.push("/")}>Volver a la web</Button>
       </section>
     </ScreenLayout>;
+  }
+
+  if (showPlanGuide) {
+    return <PlanGuideScreen onClose={() => router.push("/")} onContinue={() => setShowPlanGuide(false)} />;
   }
 
   return <ScreenLayout progress={100} onClose={() => router.push("/")}>
