@@ -10,27 +10,26 @@ import { assessmentService } from "@/services/assessmentService";
 import { prelaunchWaitlistService } from "@/services/prelaunchWaitlistService";
 
 const planInterestOptions = ["Plan Básico", "Plan Full", "Plan Premium", "Todavía no lo sé"];
-const planGuideCards = [
+const planGuideCards: { name: string; description: string; originalPrice?: string; discountedPrice: string; featured?: boolean; premium?: boolean; features: string[] }[] = [
   {
     name: "Plan Básico",
     description: "Herramientas psicológicas prácticas para tu bienestar.",
-    originalPrice: "$557",
-    discountedPrice: "$390",
+    discountedPrice: "Gratis",
     features: ["Lecturas diarias de psicoeducación", "Seminarios en vivo por Zoom", "Certificados de asistencia", "Registro emocional diario", "IA de apoyo emocional", "Ejercicios guiados", "25% OFF en sesiones terapéuticas"],
   },
   {
     name: "Plan Full",
     description: "Psicoeducación y un seguimiento profesional más cercano.",
-    originalPrice: "$3414",
-    discountedPrice: "$2390",
+    originalPrice: "$3700",
+    discountedPrice: "$2590",
     featured: true,
     features: ["Todo lo del Plan Básico", "2 sesiones mensuales con tu psicólogo", "Recomendaciones y ejercicios adaptados a tu proceso terapéutico"],
   },
   {
     name: "Plan Premium",
     description: "Para comprometerte con tu proceso al máximo.",
-    originalPrice: "$5700",
-    discountedPrice: "$3990",
+    originalPrice: "$6229",
+    discountedPrice: "$4360",
     premium: true,
     features: ["Todo lo del Plan Básico", "4 sesiones mensuales con psicólogo", "Recomendaciones y ejercicios adaptados a tu proceso terapéutico"],
   },
@@ -71,9 +70,9 @@ function PlanGuideScreen({ onClose, onContinue }: { onClose: () => void; onConti
           <p>{plan.description}</p>
           <ul>{plan.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
           <hr />
-          <span className="prelaunch-discount-badge">30% OFF PRE-LANZAMIENTO</span>
-          <div className="prelaunch-price"><span className="original-price">{plan.originalPrice} <small>UYU / mes</small></span><b>{plan.discountedPrice} <small>UYU / mes</small></b></div>
-          <p className="prelaunch-price-note">Este será el precio que accederás en tu suscripción a Mental por los primeros 3 meses del plan.</p>
+          {plan.originalPrice && <span className="prelaunch-discount-badge">30% OFF PRE-LANZAMIENTO</span>}
+          <div className="prelaunch-price">{plan.originalPrice && <span className="original-price">{plan.originalPrice} <small>UYU / mes</small></span>}<b>{plan.discountedPrice}{plan.originalPrice && <> <small>UYU / mes</small></>}</b></div>
+          <p className="prelaunch-price-note">{plan.originalPrice ? "Este será el precio que accederás en tu suscripción a Mental por los primeros 3 meses del plan." : "Gratis al principio, cuando lancemos."}</p>
         </article>)}
       </div>
       <p className="prelaunch-plan-note">Podés cambiar de opinión más adelante. Esta información es solo para orientarte.</p>
